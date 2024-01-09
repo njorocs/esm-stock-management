@@ -23,10 +23,15 @@ export const addOrEditStockOperation = async (
   operations?: StockOperationType[],
   canPrint?: boolean
 ) => {
+  // eslint-disable-next-line prefer-const
+  let payload = stockOperation;
   try {
+    if (operation.operationType === "requisition") {
+      delete payload.destinationName;
+    }
     const response: FetchResponse<StockOperationDTO> = await (isEditing
       ? updateStockOperation
-      : createStockOperation)(stockOperation);
+      : createStockOperation)(payload);
 
     if (response?.data) {
       showToast({
