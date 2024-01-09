@@ -1,7 +1,7 @@
 import React from "react";
 import { ButtonSkeleton, OverflowMenu, OverflowMenuItem } from "@carbon/react";
 import { OverflowMenuVertical } from "@carbon/react/icons";
-import { useStockOperationTypes } from "../../stock-lookups/stock-lookups.resource";
+import { useStockOperationTypes, useUserRoles } from "../../stock-lookups/stock-lookups.resource";
 import { StockOperationType } from "../../core/api/types/stockOperation/StockOperationType";
 
 interface StockOperationTypesSelectorProps {
@@ -17,6 +17,9 @@ const StockOperationTypesSelector: React.FC<
     isLoading,
     isError,
   } = useStockOperationTypes();
+  const { userRoles } = useUserRoles();
+  const allowedOperationTypeUuids = userRoles?.operationTypes.map(userRole => userRole.operationTypeUuid) ?? []
+
 
   if (isLoading || isError) return <ButtonSkeleton />;
 
@@ -45,15 +48,17 @@ const StockOperationTypesSelector: React.FC<
       {createOperationTypes
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((operation) => {
-          return (
-            <OverflowMenuItem
-              key={operation.uuid}
-              itemText={operation.name}
-              onClick={() => {
-                onOperationTypeSelected?.(operation);
-              }}
-            />
-          );
+          if (allowedOperationTypeUuids?.includes(operation.uuid)) {
+            return (
+              <OverflowMenuItem
+                key={operation.uuid}
+                itemText={operation.name}
+                onClick={() => {
+                  onOperationTypeSelected?.(operation);
+                }}
+              />
+            )
+          }
         })}
     </OverflowMenu>
   );
