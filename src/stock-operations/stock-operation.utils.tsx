@@ -15,7 +15,7 @@ import AddStockOperation from "./add-stock-operation/add-stock-operation.compone
 import { StockOperationType } from "../core/api/types/stockOperation/StockOperationType";
 import { useLocation } from "react-router-dom";
 import { boolean } from "zod";
-
+import { extractErrorMessagesFromResponse } from "../constants";
 export const addOrEditStockOperation = async (
   stockOperation: StockOperationDTO,
   isEditing: boolean,
@@ -53,11 +53,12 @@ export const addOrEditStockOperation = async (
       }
     }
   } catch (error) {
+    const errorMessages = extractErrorMessagesFromResponse(error);
     showNotification({
-      title: `Error ${isEditing ? "edit" : "add"}ing a stock operation`,
+      description: errorMessages.join(", "),
+      title: "Error on saving form",
       kind: "error",
       critical: true,
-      description: error?.message,
     });
   }
 };
